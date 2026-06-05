@@ -17,7 +17,7 @@ const profileUpdateRoutes = require('./routes/profileUpdate.routes');
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://creative-florentine-35aa74.netlify.app',
   optionsSuccessStatus: 200
 }));
 app.use(express.json({ limit: '2mb' }));
