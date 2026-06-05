@@ -15,6 +15,12 @@ const sequelize = new Sequelize(
       min: 0,
       acquire: 30000,
       idle: 10000
+    },
+    dialectOptions: {
+      ssl: {
+        require: true, // Fuerza el uso de SSL
+        rejectUnauthorized: false // Útil en entornos de desarrollo o si usas certificados autofirmados
+      }
     }
   }
 );
