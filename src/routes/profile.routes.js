@@ -43,5 +43,6 @@ router.use(authMiddleware);
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/', profileController.getProfile);
+router.get('/messages', profileController.getMessages);
 
 module.exports = router;

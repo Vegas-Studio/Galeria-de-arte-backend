@@ -107,6 +107,16 @@ const artworksController = {
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
+  },
+
+  // Obtener estadísticas globales de administración (Admin/Curador)
+  getAdminStats: async (req, res) => {
+    try {
+      const stats = await artworksService.getAdminStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
   }
 };
 

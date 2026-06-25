@@ -66,12 +66,23 @@ const authController = {
         return res.status(401).json({ error: 'El email no está registrado' });
       }
 
-      if (!user.status) {
+      if (user.status === false) {
         return res.status(401).json({ error: 'El usuario está desactivado (status: false)' });
       }
 
-      // Comparación directa de texto plano. Usamos trim() por si hay espacios invisibles en la BD
-      if (user.password?.trim() !== password?.trim()) {
+      const bcrypt = require('bcryptjs');
+      let passwordMatches = false;
+      try {
+        if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+          passwordMatches = await bcrypt.compare(password, user.password);
+        } else {
+          passwordMatches = user.password.trim() === password.trim();
+        }
+      } catch (err) {
+        passwordMatches = user.password.trim() === password.trim();
+      }
+
+      if (!passwordMatches) {
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
 

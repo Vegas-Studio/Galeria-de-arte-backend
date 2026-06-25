@@ -20,8 +20,16 @@ async function updateUser(user, fields) {
   return user.update(fields);
 }
 
+async function findAllWithRole() {
+  return User.findAll({
+    include: [{ model: Role }],
+    attributes: { exclude: [] }
+  });
+}
+
 module.exports = {
   findByIdWithRole,
   findByEmail,
-  updateUser
+  updateUser,
+  findAllWithRole
 };

@@ -27,7 +27,7 @@ async function getUserById(id) {
   return formatProfileUser(user);
 }
 
-async function updateProfile(userId, { nombre, apellido, email, password }) {
+async function updateProfile(userId, { nombre, apellido, email, password, biography, nationality, avatar }) {
   const user = await usersRepository.findByIdWithRole(userId);
   if (!user) throwError('Usuario no encontrado', 404);
 
@@ -51,6 +51,18 @@ async function updateProfile(userId, { nombre, apellido, email, password }) {
 
   if (password !== undefined && password !== '') {
     updates.password = password;
+  }
+
+  if (biography !== undefined) {
+    updates.biography = biography;
+  }
+
+  if (nationality !== undefined) {
+    updates.nationality = nationality;
+  }
+
+  if (avatar !== undefined) {
+    updates.avatar = avatar;
   }
 
   if (Object.keys(updates).length === 0) {

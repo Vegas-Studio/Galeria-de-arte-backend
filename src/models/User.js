@@ -32,6 +32,26 @@ const User = sequelize.define('User', {
   status: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
+  },
+  biography: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  nationality: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  birth_date: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  death_date: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  avatar: {
+    type: DataTypes.BLOB('long'),
+    allowNull: true
   }
 }, {
   tableName: 'users',
