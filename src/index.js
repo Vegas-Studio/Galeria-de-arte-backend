@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 
 const sequelize = require('./config/database');
+const { createCorsOptions, getAllowedOrigins } = require('./config/cors');
 require('./models'); // init associations
 
 const swaggerUi = require('swagger-ui-express');
@@ -18,19 +19,17 @@ const usersRoutes = require('./routes/users.routes');
 
 const app = express();
 
-app.use(cors({
-  origin: 'http://localhost:5173',
-  optionsSuccessStatus: 200
-}));
+app.use(cors(createCorsOptions()));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/health', (req, res) => res.json({ ok: true, corsOrigins: getAllowedOrigins() }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/artworks', artworksRoutes);
-app.use('/api', authRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api', authRoutes); // compatibilidad: /api/login, /api/register
 app.use('/api/profile', profileRoutes);
 app.use('/api/profile_update', profileUpdateRoutes);
 app.use('/api/artists', artistsRoutes);
@@ -40,13 +39,24 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-async function ensureArtistColumns() {
+app.use((err, req, res, next) => {
+  if (err.message?.includes('CORS') || err.message?.includes('Origen no permitido')) {
+    return res.status(403).json({ error: err.message });
+  }
+  // eslint-disable-next-line no-console
+  console.error(err);
+  res.status(500).json({ error: 'Error interno del servidor' });
+});
+
+async function ensureUserColumns() {
   const columnsToAdd = [
     { name: 'biography', type: 'TEXT' },
     { name: 'nationality', type: 'VARCHAR(255)' },
     { name: 'birth_date', type: 'VARCHAR(50)' },
     { name: 'death_date', type: 'VARCHAR(50)' },
-    { name: 'avatar', type: 'BYTEA' }
+    { name: 'avatar', type: 'BYTEA' },
+    { name: 'reset_password_token', type: 'VARCHAR(255)' },
+    { name: 'reset_password_expires', type: 'TIMESTAMP WITH TIME ZONE' }
   ];
   for (const col of columnsToAdd) {
     try {
@@ -62,7 +72,7 @@ async function ensureArtistColumns() {
 async function start() {
   const port = process.env.PORT || 3000;
   await sequelize.authenticate();
-  await ensureArtistColumns();
+  await ensureUserColumns();
   app.listen(port, () => {
     // eslint-disable-next-line no-console
     console.log(`Server running on port ${port}`);
